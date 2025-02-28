@@ -1,0 +1,11 @@
+﻿{
+  "SmtpServer": "smtp.gmail.com",
+  "SmtpPort": 465,
+  "SmtpUsername": "",
+  "SmtpPassword": "",
+  "ImapServer": "imap.gmail.com",
+  "ImapPort": 993,
+  "ImapUsername": "",
+  "ImapPassword": "",
+  "RecipientEmail": ""
+}
