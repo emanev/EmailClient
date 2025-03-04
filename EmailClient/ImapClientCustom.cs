@@ -37,9 +37,9 @@ class ImapClientCustom
                     using (StreamWriter writer = new StreamWriter(sslStream, Encoding.ASCII) { AutoFlush = true })
                     {
                         await ReadResponse(reader);
-                        await SendCommand(writer, reader, $"A1 LOGIN \"{username}\" \"{password}\"");
-                        await SendCommand(writer, reader, "A2 SELECT INBOX");
-                        await SendCommandWithFullResponse(writer, reader, "A3 FETCH 1:* (BODY[HEADER.FIELDS (SUBJECT FROM DATE)])");
+                        await SendCommand(writer, reader, $"A1 LOGIN \"{username}\" \"{password}\"", true);
+                        await SendCommand(writer, reader, "A2 SELECT INBOX", true);
+                        await SendCommand(writer, reader, "A3 FETCH 1:* (BODY[HEADER.FIELDS (SUBJECT FROM DATE)])", true);
                         await SendCommand(writer, reader, "A4 LOGOUT");
                     }
                 }
@@ -62,7 +62,7 @@ class ImapClientCustom
         }
     }
 
-    private async Task<string> ReadMultiLineResponse(StreamReader reader)
+    private async Task<string> ReadMultiLineResponse(StreamReader reader, string tag)
     {
         StringBuilder response = new StringBuilder();
         string line;
@@ -72,7 +72,7 @@ class ImapClientCustom
             response.AppendLine(line);
             Console.WriteLine("S: " + line);
             
-            if (line.StartsWith("A3 OK") || line.StartsWith("A3 NO") || line.StartsWith("A3 BAD"))
+            if (line.StartsWith($"{tag} OK") || line.StartsWith($"{tag} NO") || line.StartsWith($"{tag} BAD"))
                 break;
 
             if (line.Contains("{") && line.Contains("}"))
@@ -83,29 +83,21 @@ class ImapClientCustom
             }
         }
         return response.ToString();
-    }
+    }    
 
-
-
-    private async Task SendCommand(StreamWriter writer, StreamReader reader, string command, bool isFetch = false)
+    private async Task SendCommand(StreamWriter writer, StreamReader reader, string command, bool expectFullResponse = false)
     {
         Console.WriteLine("C: " + command);
         await writer.WriteLineAsync(command);
 
-        if (isFetch)
-            await ReadMultiLineResponse(reader);
+        if (expectFullResponse)
+        {
+            string response = await ReadMultiLineResponse(reader, command[..2]);
+            //Console.WriteLine("Full Response:\n" + response);
+        }
         else
+        {
             await ReadResponse(reader);
+        }
     }
-
-    private async Task SendCommandWithFullResponse(StreamWriter writer, StreamReader reader, string command)
-    {
-        Console.WriteLine("C: " + command);
-        await writer.WriteLineAsync(command);
-        string response = await ReadMultiLineResponse(reader);
-
-        Console.WriteLine("Full Response: \n" + response);
-    }
-
-
 }
