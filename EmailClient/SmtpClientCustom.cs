@@ -41,8 +41,8 @@ class SmtpClientCustom
                         await ReadResponse(reader);
                         await SendCommand(writer, reader, $"EHLO {smtpServer}");
                         await SendCommand(writer, reader, "AUTH LOGIN");
-                        await SendCommand(writer, reader, Convert.ToBase64String(Encoding.UTF8.GetBytes(username)), expectMultiple: false);
-                        await SendCommand(writer, reader, Convert.ToBase64String(Encoding.UTF8.GetBytes(password)), expectMultiple: false);
+                        await SendCommand(writer, reader, Convert.ToBase64String(Encoding.UTF8.GetBytes(username)));
+                        await SendCommand(writer, reader, Convert.ToBase64String(Encoding.UTF8.GetBytes(password)));
                         await SendCommand(writer, reader, $"MAIL FROM:<{username}>");
                         await SendCommand(writer, reader, $"RCPT TO:<{recipient}>");
                         await SendCommand(writer, reader, "DATA");
