@@ -39,7 +39,8 @@ class ImapClientCustom
                         await ReadResponse(reader);
                         await SendCommand(writer, reader, $"A1 LOGIN \"{username}\" \"{password}\"", true);
                         await SendCommand(writer, reader, "A2 SELECT INBOX", true);
-                        await SendCommand(writer, reader, "A3 FETCH 1:* (BODY[HEADER.FIELDS (SUBJECT FROM DATE)])", true);
+                        // Show only Date and Subject
+                        await SendCommand(writer, reader, "A3 FETCH 1:* (BODY[HEADER.FIELDS (SUBJECT DATE)])", true);
                         await SendCommand(writer, reader, "A4 LOGOUT");
                     }
                 }
@@ -68,10 +69,20 @@ class ImapClientCustom
         string line;
 
         while ((line = await reader.ReadLineAsync()) != null)
-        {
+        {   
+            if (line.StartsWith("*"))
+            {
+                continue;
+            }
+
+            if (line == ")")
+            {
+                continue;
+            }
+
             response.AppendLine(line);
             Console.WriteLine("S: " + line);
-            
+
             if (line.StartsWith($"{tag} OK") || line.StartsWith($"{tag} NO") || line.StartsWith($"{tag} BAD"))
                 break;
 
@@ -79,11 +90,11 @@ class ImapClientCustom
             {
                 string emailData = await reader.ReadLineAsync();
                 response.AppendLine(emailData);
-                Console.WriteLine("Email Data: " + emailData);
+                Console.WriteLine(emailData);
             }
         }
         return response.ToString();
-    }    
+    }
 
     private async Task SendCommand(StreamWriter writer, StreamReader reader, string command, bool expectFullResponse = false)
     {
@@ -92,8 +103,7 @@ class ImapClientCustom
 
         if (expectFullResponse)
         {
-            string response = await ReadMultiLineResponse(reader, command[..2]);
-            //Console.WriteLine("Full Response:\n" + response);
+            string response = await ReadMultiLineResponse(reader, command[..2]);            
         }
         else
         {
