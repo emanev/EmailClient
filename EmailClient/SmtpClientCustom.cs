@@ -47,10 +47,10 @@ class SmtpClientCustom
                         await SendCommand(writer, reader, $"RCPT TO:<{recipient}>");
                         await SendCommand(writer, reader, "DATA");
 
-                        await writer.WriteLineAsync($"Subject: {subject}\r\n");
-                        await writer.WriteLineAsync($"From: {username}\r\n");
-                        await writer.WriteLineAsync($"To: {recipient}\r\n");
-                        await writer.WriteLineAsync("\r\n");
+                        await writer.WriteLineAsync($"Subject: {subject}\r");
+                        await writer.WriteLineAsync($"From: {username}\r");
+                        await writer.WriteLineAsync($"To: {recipient}\r");
+                        await writer.WriteLineAsync("\r");
                         await writer.WriteLineAsync(body);
                         await writer.WriteLineAsync(".");
 

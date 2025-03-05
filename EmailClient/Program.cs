@@ -1,4 +1,6 @@
-﻿class Program
+﻿using System.Text;
+
+class Program
 {
     static async Task Main(string[] args)
     {
@@ -20,7 +22,11 @@
             if (choice == "1")
             {
                 SmtpClientCustom smtpClient = new SmtpClientCustom(config);
-                await smtpClient.SendEmailAsync("Test Subject", "Hello, this is a test email.");
+                Console.WriteLine("Please enter subject:");
+                string subject = Console.ReadLine();
+                Console.WriteLine("Please enter email text:");
+                string multilineText = ReadMultiLineInput();
+                await smtpClient.SendEmailAsync(subject, multilineText);
             }
             else if (choice == "2")
             {
@@ -34,4 +40,21 @@
         }
     }
 
+    private static string ReadMultiLineInput()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        string? line;
+
+        while ((line = Console.ReadLine()) != null)
+        {
+            if (line.Trim().Equals("END"))
+            {
+                break;
+            }
+            sb.AppendLine(line);        
+        }
+
+        return sb.ToString();
+    }
 }
